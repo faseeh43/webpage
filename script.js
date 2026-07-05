@@ -100,9 +100,10 @@ function renderSurprise() {
 }
 
 function renderSchedule() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = localDateValue(tomorrow);
+  const now = new Date();
+  const earliestDate = new Date(now);
+  if (now.getHours() >= 11) earliestDate.setDate(earliestDate.getDate() + 1);
+  const minDate = localDateValue(earliestDate);
 
   return `
     <div class="screen">
