@@ -45,8 +45,6 @@ const foodsByCity = {
 
 const activities = [
   ["🌙", "Walk & talk"],
-  ["🎬", "Movie"],
-  ["🎳", "Games"],
   ["🍨", "Dessert run"],
   ["🗺️", "Mini adventure"],
   ["🎁", "You choose"],
@@ -111,7 +109,7 @@ function renderSchedule() {
       ${progress(1)}
       <div class="screen-centered">
         <p class="eyebrow">First things first</p>
-        <h2>Where and when are you free?</h2>
+        <h2>When are you free?</h2>
         <p class="subtitle">Pick our city, a day, and a time. I’ll bring the good conversation.</p>
       </div>
       <form id="scheduleForm">
@@ -170,7 +168,6 @@ function renderActivity() {
       <div class="screen-centered">
         <p class="eyebrow">One last decision</p>
         <h2>Pick our date vibe</h2>
-        <p class="subtitle">Cute, cozy, competitive, or a little spontaneous?</p>
       </div>
       <div class="choices" role="group" aria-label="Choose an activity">
         ${choiceCards(activities, state.activity, "activityChoice")}
@@ -419,6 +416,24 @@ function showToast(message) {
   showToast.timeout = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+function bindSongPlayer() {
+  const toggle = document.querySelector("#songToggle");
+  const toggleText = document.querySelector("#songToggleText");
+  const panel = document.querySelector("#songPanel");
+  const player = document.querySelector("#songPlayer");
+
+  toggle.addEventListener("click", () => {
+    const willOpen = panel.hidden;
+    if (willOpen && !player.dataset.loaded) {
+      player.src = player.dataset.src;
+      player.dataset.loaded = "true";
+    }
+    panel.hidden = !willOpen;
+    toggle.setAttribute("aria-expanded", willOpen);
+    toggleText.textContent = willOpen ? "Hide player" : "Play Toxicity";
+  });
+}
+
 function celebrate(amount) {
   const colors = ["#b73565", "#ee7da4", "#f8b25e", "#c49ad4", "#f7d365"];
   const container = document.querySelector("#confetti");
@@ -440,4 +455,5 @@ function celebrate(amount) {
 }
 
 render();
+bindSongPlayer();
 notifyOpened();

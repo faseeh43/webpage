@@ -9,7 +9,7 @@
       content="A tiny, playful invitation for someone very special."
     />
     <title>A tiny question for you 💌</title>
-    <link rel="stylesheet" href="styles.css?v=3" />
+    <link rel="stylesheet" href="styles.css?v=6" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -22,16 +22,36 @@
     </div>
 
     <main class="page-shell">
-      <div class="brand"><span>made with</span> lots of courage <span>♡</span></div>
+      <div class="brand"><span>made with</span> lots of hope <span>♡</span></div>
 
       <section class="card" id="app" aria-live="polite"></section>
 
       <p class="footer-note">One tiny website. One very important question.</p>
     </main>
 
+    <aside class="song-widget" aria-label="Our song">
+      <div class="song-panel" id="songPanel" hidden>
+        <iframe
+          id="songPlayer"
+          title="Toxicity by System Of A Down on Spotify"
+          data-src="https://open.spotify.com/embed/track/5n6STq2i8W223SFzHoOy8Y?utm_source=generator&theme=0"
+          width="100%"
+          height="152"
+          frameborder="0"
+          allowfullscreen
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        ></iframe>
+      </div>
+      <button class="song-toggle" id="songToggle" type="button" aria-expanded="false" aria-controls="songPanel">
+        <span aria-hidden="true">♫</span>
+        <span id="songToggleText">Play Toxicity</span>
+      </button>
+    </aside>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=6"></script>
   </body>
 </html>
