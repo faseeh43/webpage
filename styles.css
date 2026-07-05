@@ -341,7 +341,7 @@ h2 {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 28px;
 }
@@ -359,10 +359,10 @@ h2 {
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
-  min-height: 52px;
-  padding: 0 14px;
+  padding: 14px;
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -371,10 +371,46 @@ h2 {
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
+.field input,
+.field select {
+  min-height: 52px;
+  padding-block: 0;
+}
+
+.field textarea {
+  min-height: 88px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   border-color: rgba(183, 53, 101, 0.52);
   box-shadow: 0 0 0 4px rgba(183, 53, 101, 0.09);
+}
+
+.field label span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.note-field {
+  margin-top: 20px;
+}
+
+.save-status {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: var(--berry);
+  font-size: 12px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.78;
 }
 
 .choices {

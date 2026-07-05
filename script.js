@@ -2,6 +2,9 @@
 const CONFIG = {
   to: "my favorite person",
   from: "your favorite troublemaker",
+  // Create a free Formspree form, then paste its endpoint here.
+  // Example: "https://formspree.io/f/abcdefgh"
+  formEndpoint: "",
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -14,6 +17,7 @@ const app = document.querySelector("#app");
 const toast = document.querySelector("#toast");
 const state = {
   step: 0,
+  city: "",
   date: "",
   time: "",
   food: "",
@@ -21,14 +25,23 @@ const state = {
   noAttempts: 0,
 };
 
-const foods = [
-  ["🍕", "Pizza"],
-  ["🍣", "Sushi"],
-  ["🍔", "Burgers"],
-  ["🍝", "Pasta"],
-  ["🌮", "Tacos"],
-  ["✨", "Surprise me"],
-];
+const foodsByCity = {
+  Antwerp: [
+    ["🍣", "Sushi"],
+    ["🥩", "Steak"],
+    ["🍝", "Pasta / Italian"],
+    ["🍛", "Pakistani food"],
+    ["🥙", "Lebanese"],
+    ["✨", "You choose — surprise me"],
+  ],
+  Mechelen: [
+    ["🍣", "Sushi"],
+    ["🥩", "Steak"],
+    ["🍝", "Pasta / Italian"],
+    ["🥙", "Lebanese"],
+    ["✨", "You choose — surprise me"],
+  ],
+};
 
 const activities = [
   ["🌙", "Walk & talk"],
@@ -65,7 +78,7 @@ function render() {
 function renderInvite() {
   return `
     <div class="screen screen-centered">
-      <div class="pup" aria-hidden="true">🐶</div>
+      <div class="pup" aria-hidden="true">🧸</div>
       <p class="eyebrow">A tiny question for ${escapeHtml(person.to)}</p>
       <h1>Will you go on a date with me?</h1>
       <p class="subtitle">I have a plan, a little courage, and extremely high hopes.</p>
@@ -98,11 +111,20 @@ function renderSchedule() {
       ${progress(1)}
       <div class="screen-centered">
         <p class="eyebrow">First things first</p>
-        <h2>When are you free?</h2>
-        <p class="subtitle">Pick a day and time. I’ll bring the good conversation.</p>
+        <h2>Where and when are you free?</h2>
+        <p class="subtitle">Pick our city, a day, and a time. I’ll bring the good conversation.</p>
       </div>
       <form id="scheduleForm">
         <div class="form-grid">
+          <div class="field">
+            <label for="city">Pick our city 📍</label>
+            <select id="city" name="city" required>
+              <option value="">Choose a city…</option>
+              ${["Antwerp", "Mechelen"]
+                .map((city) => `<option ${state.city === city ? "selected" : ""}>${city}</option>`)
+                .join("")}
+            </select>
+          </div>
           <div class="field">
             <label for="date">Pick a day 📅</label>
             <input id="date" name="date" type="date" min="${minDate}" value="${state.date}" required />
@@ -124,16 +146,17 @@ function renderSchedule() {
 }
 
 function renderFood() {
+  const availableFoods = foodsByCity[state.city] || [];
   return `
     <div class="screen">
       ${progress(2)}
       <div class="screen-centered">
         <p class="eyebrow">Choose our flavor</p>
-        <h2>What are we feeling?</h2>
-        <p class="subtitle">There are no wrong answers. Except maybe plain celery.</p>
+        <h2>What are we feeling in ${escapeHtml(state.city)}?</h2>
+        <p class="subtitle">There are no wrong answers. Except maybe plain celery. 😂</p>
       </div>
       <div class="choices" role="group" aria-label="Choose food">
-        ${choiceCards(foods, state.food, "foodChoice")}
+        ${choiceCards(availableFoods, state.food, "foodChoice")}
       </div>
       <button class="btn btn-primary btn-wide" id="foodNext" type="button">Next: choose the vibe →</button>
       ${backButton()}
@@ -167,11 +190,17 @@ function renderFinal() {
       <p class="subtitle">Here’s our tiny plan, ${escapeHtml(person.to)}.</p>
       <div class="summary">
         ${summaryRow("📅", "When", `${readableDate} at ${state.time}`)}
+        ${summaryRow("📍", "Where", state.city)}
         ${summaryRow("🍽️", "Food mood", state.food)}
         ${summaryRow("✨", "The vibe", state.activity)}
       </div>
       <p class="final-note">Glad you didn’t say no. I can’t wait.<br />— ${escapeHtml(person.from)}</p>
-      <button class="btn btn-primary btn-wide" id="sharePlan" type="button">Share our plan 💌</button>
+      <div class="field note-field">
+        <label for="dateNote">Anything you want me to know? <span>(optional)</span></label>
+        <textarea id="dateNote" rows="3" placeholder="Leave me a little note…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-wide" id="sendPlan" type="button">Send my choices 💌</button>
+      <p class="save-status" id="saveStatus" aria-live="polite"></p>
       ${backButton("Change something")}
     </div>`;
 }
@@ -211,7 +240,7 @@ function bindCurrentScreen() {
   if (state.step === 3) bindChoices(".foodChoice", "food", "#foodNext", 4);
   if (state.step === 4) bindChoices(".activityChoice", "activity", "#activityNext", 5);
   if (state.step === 5) {
-    document.querySelector("#sharePlan").addEventListener("click", sharePlan);
+    document.querySelector("#sendPlan").addEventListener("click", sendPlan);
     celebrate(42);
   }
 
@@ -268,8 +297,11 @@ function bindInvite() {
 function saveSchedule(event) {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
+  state.city = data.get("city");
   state.date = data.get("date");
   state.time = data.get("time");
+  const availableFoodNames = (foodsByCity[state.city] || []).map(([, name]) => name);
+  if (!availableFoodNames.includes(state.food)) state.food = "";
   goTo(3);
 }
 
@@ -317,25 +349,66 @@ function localDateValue(date) {
   return `${year}-${month}-${day}`;
 }
 
-function planText() {
-  return `It’s a date! 💌\n📅 ${formatDate(state.date)} at ${state.time}\n🍽️ ${state.food}\n✨ ${state.activity}\n\nCan’t wait — ${person.from}`;
-}
+async function sendPlan() {
+  const button = document.querySelector("#sendPlan");
+  const status = document.querySelector("#saveStatus");
 
-async function sharePlan() {
-  const shareData = {
-    title: "Our date plan 💌",
-    text: planText(),
-  };
+  if (!CONFIG.formEndpoint) {
+    showToast("Response saving needs to be connected first.");
+    status.textContent = "Almost ready — the response form still needs its connection.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Sending…";
 
   try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-      return;
-    }
-    await navigator.clipboard.writeText(shareData.text);
-    showToast("Plan copied — send it to your date! 💌");
-  } catch (error) {
-    if (error.name !== "AbortError") showToast("Screenshot this plan and send it 💌");
+    await submitResponse({
+      event: "date_plan_completed",
+      city: state.city,
+      date: state.date,
+      time: state.time,
+      food: state.food,
+      activity: state.activity,
+      note: document.querySelector("#dateNote").value.trim() || "No extra note",
+    });
+    button.textContent = "Sent — see you soon ♥";
+    status.textContent = `Your choices went straight to ${person.from}.`;
+    celebrate(24);
+  } catch {
+    button.disabled = false;
+    button.textContent = "Try sending again 💌";
+    status.textContent = "That didn’t send. Please try once more.";
+  }
+}
+
+async function submitResponse(details) {
+  const response = await fetch(CONFIG.formEndpoint, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...details,
+      invitationFor: person.to,
+      invitationFrom: person.from,
+      page: window.location.href,
+      sentAt: new Date().toISOString(),
+    }),
+  });
+
+  if (!response.ok) throw new Error("Response could not be saved");
+}
+
+async function notifyOpened() {
+  if (!CONFIG.formEndpoint || sessionStorage.getItem("invitation-opened-sent")) return;
+  sessionStorage.setItem("invitation-opened-sent", "true");
+
+  try {
+    await submitResponse({ event: "invitation_opened" });
+  } catch {
+    sessionStorage.removeItem("invitation-opened-sent");
   }
 }
 
@@ -367,3 +440,4 @@ function celebrate(amount) {
 }
 
 render();
+notifyOpened();
