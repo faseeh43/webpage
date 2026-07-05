@@ -4,7 +4,7 @@ const CONFIG = {
   from: "your favorite troublemaker",
   // Create a free Formspree form, then paste its endpoint here.
   // Example: "https://formspree.io/f/abcdefgh"
-  formEndpoint: "",
+  formEndpoint: "https://formspree.io/f/mnjkwlja",
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -250,6 +250,7 @@ function bindInvite() {
   const zone = document.querySelector("#actionZone");
 
   yesButton.addEventListener("click", () => {
+    notifyMilestone("said_yes");
     celebrate(34);
     goTo(1);
   });
@@ -299,6 +300,11 @@ function saveSchedule(event) {
   state.time = data.get("time");
   const availableFoodNames = (foodsByCity[state.city] || []).map(([, name]) => name);
   if (!availableFoodNames.includes(state.food)) state.food = "";
+  notifyMilestone("schedule_chosen", {
+    city: state.city,
+    date: state.date,
+    time: state.time,
+  });
   goTo(3);
 }
 
@@ -320,6 +326,10 @@ function bindChoices(selector, stateKey, nextSelector, nextStep) {
       showToast("Pick one first — I promise they’re all good choices.");
       return;
     }
+    notifyMilestone(`${stateKey}_chosen`, {
+      city: state.city,
+      [stateKey]: state[stateKey],
+    });
     goTo(nextStep);
   });
 }
@@ -399,13 +409,18 @@ async function submitResponse(details) {
 }
 
 async function notifyOpened() {
-  if (!CONFIG.formEndpoint || sessionStorage.getItem("invitation-opened-sent")) return;
-  sessionStorage.setItem("invitation-opened-sent", "true");
+  notifyMilestone("invitation_opened");
+}
+
+async function notifyMilestone(event, details = {}) {
+  const storageKey = `date-invite-${event}-sent`;
+  if (!CONFIG.formEndpoint || sessionStorage.getItem(storageKey)) return;
+  sessionStorage.setItem(storageKey, "true");
 
   try {
-    await submitResponse({ event: "invitation_opened" });
+    await submitResponse({ event, ...details });
   } catch {
-    sessionStorage.removeItem("invitation-opened-sent");
+    sessionStorage.removeItem(storageKey);
   }
 }
 
