@@ -25,6 +25,11 @@ const state = {
   noAttempts: 0,
 };
 
+let spotifyController;
+let spotifyReady = false;
+let introLoopEnabled = false;
+let introRestarting = false;
+
 const foodsByCity = {
   Antwerp: [
     ["🍣", "Sushi"],
@@ -436,19 +441,49 @@ function bindSongPlayer() {
   const toggle = document.querySelector("#songToggle");
   const toggleText = document.querySelector("#songToggleText");
   const panel = document.querySelector("#songPanel");
-  const player = document.querySelector("#songPlayer");
 
   toggle.addEventListener("click", () => {
     const willOpen = panel.hidden;
-    if (willOpen && !player.dataset.loaded) {
-      player.src = player.dataset.src;
-      player.dataset.loaded = "true";
-    }
     panel.hidden = !willOpen;
+    introLoopEnabled = willOpen;
     toggle.setAttribute("aria-expanded", willOpen);
-    toggleText.textContent = willOpen ? "Hide player" : "Play Toxicity";
+    toggleText.textContent = willOpen ? "Pause intro" : "Play 10-sec intro";
+
+    if (!spotifyReady) return;
+    if (willOpen) {
+      spotifyController.seek(0);
+      spotifyController.play();
+    } else {
+      spotifyController.pause();
+    }
   });
 }
+
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+  const element = document.querySelector("#songPlayer");
+  const options = {
+    width: "100%",
+    height: 152,
+    uri: "spotify:track:5n6STq2i8W223SFzHoOy8Y",
+    theme: "dark",
+  };
+
+  IFrameAPI.createController(element, options, (controller) => {
+    spotifyController = controller;
+    controller.addListener("ready", () => {
+      spotifyReady = true;
+    });
+    controller.addListener("playback_update", ({ data }) => {
+      if (!introLoopEnabled || data.isPaused || data.position < 10000 || introRestarting) return;
+      introRestarting = true;
+      controller.seek(0);
+      setTimeout(() => {
+        controller.play();
+        introRestarting = false;
+      }, 120);
+    });
+  });
+};
 
 function celebrate(amount) {
   const colors = ["#b73565", "#ee7da4", "#f8b25e", "#c49ad4", "#f7d365"];

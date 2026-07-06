@@ -9,7 +9,7 @@
       content="A tiny, playful invitation for someone very special."
     />
     <title>A tiny question for you 💌</title>
-    <link rel="stylesheet" href="styles.css?v=9" />
+    <link rel="stylesheet" href="styles.css?v=10" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -31,27 +31,18 @@
 
     <aside class="song-widget" aria-label="Our song">
       <div class="song-panel" id="songPanel" hidden>
-        <iframe
-          id="songPlayer"
-          title="Toxicity by System Of A Down on Spotify"
-          data-src="https://open.spotify.com/embed/track/5n6STq2i8W223SFzHoOy8Y?utm_source=generator&theme=0"
-          width="100%"
-          height="152"
-          frameborder="0"
-          allowfullscreen
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        ></iframe>
+        <div id="songPlayer"></div>
       </div>
       <button class="song-toggle" id="songToggle" type="button" aria-expanded="false" aria-controls="songPanel">
         <span aria-hidden="true">♫</span>
-        <span id="songToggleText">Play Toxicity</span>
+        <span id="songToggleText">Play 10-sec intro</span>
       </button>
     </aside>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
   </body>
 </html>
