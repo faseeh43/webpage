@@ -9,7 +9,7 @@
       content="A tiny, playful invitation for someone very special."
     />
     <title>A tiny question for you 💌</title>
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=11" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -30,10 +30,8 @@
     </main>
 
     <aside class="song-widget" aria-label="Our song">
-      <div class="song-panel" id="songPanel" hidden>
-        <div id="songPlayer"></div>
-      </div>
-      <button class="song-toggle" id="songToggle" type="button" aria-expanded="false" aria-controls="songPanel">
+      <audio id="songPlayer" src="toxicity-intro-10s.mp3" preload="metadata" loop></audio>
+      <button class="song-toggle" id="songToggle" type="button" aria-pressed="false">
         <span aria-hidden="true">♫</span>
         <span id="songToggleText">Play 10-sec intro</span>
       </button>
@@ -42,7 +40,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-    <script src="script.js?v=10"></script>
-    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+    <script src="script.js?v=11"></script>
   </body>
 </html>
