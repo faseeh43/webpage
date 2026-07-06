@@ -442,7 +442,7 @@ function bindSongPlayer() {
       player.pause();
       player.currentTime = 0;
       toggle.setAttribute("aria-pressed", "false");
-      toggleText.textContent = "Play 10-sec intro";
+      toggleText.textContent = "Play music";
       return;
     }
 
@@ -450,7 +450,7 @@ function bindSongPlayer() {
       player.currentTime = 0;
       await player.play();
       toggle.setAttribute("aria-pressed", "true");
-      toggleText.textContent = "Pause intro";
+      toggleText.textContent = "Pause music";
     } catch {
       showToast("Tap once more to start the music.");
     }
